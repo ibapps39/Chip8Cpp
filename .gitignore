@@ -1,0 +1,92 @@
+# Build directories
+/build/
+/bin/
+/obj/
+/out/
+build/
+
+# Compiled object files
+*.o
+*.obj
+
+# Compiled binary files
+*.exe
+*.out
+*.app
+
+# Static and dynamic libraries
+*.lib
+*.a
+*.la
+*.lo
+*.dll
+*.so
+*.dylib
+
+# CMake files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+# Makefile
+CMakeLists.txt.user
+
+# Visual Studio files
+*.sln
+*.vcxproj*
+*.ncb
+*.sdf
+*.opensdf
+*.vcxproj.*
+*.user
+*.filters
+ipch/
+
+# Xcode files
+*.xcworkspace
+*.xcuserstate
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+
+# CLion and JetBrains
+.idea/
+*.iml
+cmake-build-*/
+
+# Code::Blocks
+*.depend
+*.layout
+*.cbp
+
+# Qt Creator
+*.pro.user
+*.qmake.stash
+
+# Mac OS
+.DS_Store
+
+# Linux
+*~
+*.swp
+*.swo
+*.bak
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Debugging files
+*.dSYM/
+*.stackdump
+
+# Logs and temporary files
+*.log
+*.tmp
+
+# Coverage files
+*.gcno
+*.gcda
+*.gcov
