@@ -51,6 +51,7 @@ clean:
 JOBS := $(shell nproc 2>/dev/null || sysctl -n hw.ncpu)
 fast:
 	make -j $(JOBS) all
+
 # Rebuild everything from scratch
 rebuild: clean all
 
