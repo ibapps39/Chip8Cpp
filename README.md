@@ -4,7 +4,7 @@ chip8/
 ├── src/
 │   ├── main.cpp
 │   ├── chip8.cpp
-│   └── chip8.hpp
+│   
 ├── include/
 │   └── chip8.hpp
 ├── build/
