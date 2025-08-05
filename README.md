@@ -56,7 +56,7 @@ chip8/
     - https://github.com/dmatlack/chip8/tree/master/roms
 - [Tobias V. Langhoff - Opcode reference](https://tobiasvl.github.io/blog/write-a-chip-8-emulator)
     - https://tobiasvl.github.io/blog/write-a-chip-8-emulator
-- [Tim Stamper’s spec](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
+- [Tim Stamper’s spec (FAVORED)](http://devernay.free.fr/hacks/chip8/C8TECH10.HTM)
     - http://devernay.free.fr/hacks/chip8/C8TECH10.HTM
 - [BUILDING A CHIP-8 EMULATOR [C++]](https://austinmorlan.com/posts/chip8_emulator/?ref=codebldr#16-8-bit-registers) 
     - https://austinmorlan.com/posts/chip8_emulator/?ref=codebldr#16-8-bit-registers
