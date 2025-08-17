@@ -40,18 +40,18 @@ public:
     static constexpr uint16_t STORAGE_START = 0x050;
     static constexpr uint16_t STORAGE_END = 0x0A0;
 
-    struct Registers // 8bit General purpose registers array, Vx
-    {
-        uint16_t I; // "I", index, register stores memory address
-        union
-        {
-            uint8_t V[16];
-            struct
-            {
-                uint8_t V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE, VF;
-            };
-        };
-    } registers;
+    // struct Registers // 8bit General purpose registers array, Vx
+    // {
+    //     uint16_t I; // "I", index, register stores memory address
+    //     union
+    //     {
+    //         uint8_t V[16];
+    //         struct
+    //         {
+    //             uint8_t V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE, VF;
+    //         };
+    //     };
+    // } registers;
 
     uint8_t sp = 0;                // 8bit Stack pointer
     uint8_t memory[MEM_SIZE] = {}; // Memory, RAM, array
@@ -91,7 +91,11 @@ public:
     chip8() = default;
     ~chip8() = default;
 
+    // Fetch, Decode, Execute
+    void Cycle() {};
+    // Read ROMs
     void LoadROM(char const *filename) {};
+
     // OPCODES
     void OP_00E0() {};
     void OP_00EE() {};
@@ -127,8 +131,40 @@ public:
     void OP_Fx33() {};
     void OP_Fx55() {};
     void OP_Fx65() {};
+    void OP_NULL() {};
+
+    // TABLES
+    typedef void (chip8::*chip8Func)();
+    chip8Func table[0x10]; // Master table
+    chip8Func table0[0xF];
+    chip8Func table8[0xF];
+    chip8Func tableE[0xF];
+    chip8Func tableF[0x65 + 1];
+
+    void Table0()
+    {
+        ((*this).*(table0[opcode & 0x000Fu]))();
+    }
+
+    void TableE()
+    {
+        ((*this).*(tableE[opcode & 0x000Fu]))();
+    }
+
+    void Table8()
+    {
+        ((*this).*(table8[opcode & 0x000Fu]))();
+    }
+
+    void TableF()
+    {
+        ((*this).*(tableF[opcode & 0x00FFu]))();
+    }
+
+    // Does nothing, dummy function for bad calls
+    void TableNULL() {}
 };
-chip8::chip8(/* args */) : rng(std::chrono::system_clock::now().time_since_epoch().count())
+chip8::chip8() : rng(std::chrono::system_clock::now().time_since_epoch().count())
 {
     // Start Program
     pc = DATA_START;
@@ -141,15 +177,92 @@ chip8::chip8(/* args */) : rng(std::chrono::system_clock::now().time_since_epoch
     // random byte via rng -> system_clock
     randByte = std::uniform_int_distribution<uint8_t>(0, 255U);
 
-    using Instruction = void(chip8::*)();
-    Instruction table[16] = 
+    // populate the empty spots for bad calls and padding
+    for (size_t i = 0; i <= 0xE; i++)
     {
-        &chip8::OP_1nnn
+        table0[i] = &chip8::OP_NULL;
+        table8[i] = &chip8::OP_NULL;
+        tableE[i] = &chip8::OP_NULL;
     }
+
+    // Table0
+    table0[0x0] = &chip8::OP_00E0;
+    table0[0xE] = &chip8::OP_00EE;
+
+    // Table8
+    table8[0x0] = &chip8::OP_8xy0;
+    table8[0x1] = &chip8::OP_8xy1;
+    table8[0x2] = &chip8::OP_8xy2;
+    table8[0x3] = &chip8::OP_8xy3;
+    table8[0x4] = &chip8::OP_8xy4;
+    table8[0x5] = &chip8::OP_8xy5;
+    table8[0x6] = &chip8::OP_8xy6;
+    table8[0x7] = &chip8::OP_8xy7;
+    table8[0xE] = &chip8::OP_8xyE;
+
+    // TableE
+    tableE[0x1] = &chip8::OP_ExA1;
+    tableE[0xE] = &chip8::OP_Ex9E;
+
+    // TableF
+    tableF[0x07] = &chip8::OP_Fx07;
+    tableF[0x0A] = &chip8::OP_Fx0A;
+    tableF[0x15] = &chip8::OP_Fx15;
+    tableF[0x18] = &chip8::OP_Fx18;
+    tableF[0x1E] = &chip8::OP_Fx1E;
+    tableF[0x29] = &chip8::OP_Fx29;
+    tableF[0x33] = &chip8::OP_Fx33;
+    tableF[0x55] = &chip8::OP_Fx55;
+    tableF[0x65] = &chip8::OP_Fx65;
+
+    // Populate Master Table
+    using Instruction = void (chip8::*)();
+    Instruction table[16] =
+        {
+            &chip8::Table0,
+            &chip8::OP_1nnn,
+            &chip8::OP_2nnn,
+            &chip8::OP_3xkk,
+            &chip8::OP_4xkk,
+            &chip8::OP_5xy0,
+            &chip8::OP_6xkk,
+            &chip8::OP_7xkk,
+            &chip8::Table8,
+            &chip8::OP_9xy0,
+            &chip8::OP_Annn,
+            &chip8::OP_Bnnn,
+            &chip8::OP_Cxkk,
+            &chip8::OP_Dxyn,
+            &chip8::TableE,
+            &chip8::TableF
+        };
 }
 
 chip8::~chip8()
 {
+}
+
+void chip8::Cycle()
+{
+    // Fetch, whichever is true. Combines bytes to make a 16 No *(uint16_t*)&memory[pc], ignores endianess
+    opcode = (memory[pc] << 8u) | memory[pc+1];
+    
+    // Increment before exec.
+    pc += 2;
+
+    // Decode and Execute
+    ((*this).*(table[(opcode & 0xF000u) >> 12u]))();
+
+    // Decrement the delay timer if it's been set
+    if (delay_timer > 0)
+    {
+        --delay_timer;
+    }
+    // Decrement the sound timer if it's been set
+    if (sound_timer > 0)
+    {
+        --sound_timer;
+    }
 }
 
 // Loads ROM as stream of binary to buffer and copies to the start of chip8 memory/ram.
@@ -456,9 +569,9 @@ void chip8::OP_Fx33()
     uint8_t val = v_registers[(opcode & 0x0F00u) >> 8u];
     // 100s
     memory[index] = val % 10;
-    //10s
+    // 10s
     memory[index + 1] = (val / 10) % 10;
-    //1s
+    // 1s
     memory[index + 2] = (val / 100) % 10;
 }
 
@@ -467,9 +580,8 @@ void chip8::OP_Fx55()
 {
     for (size_t i = 0; i <= ((opcode & 0x0F00u) >> 8u); ++i)
     {
-        memory[index+i] = v_registers[i];
+        memory[index + i] = v_registers[i];
     }
-    
 }
 
 // LD Vx, [I], read V0 through Vx
@@ -477,6 +589,6 @@ void chip8::OP_Fx65()
 {
     for (size_t i = 0; i <= ((opcode & 0x0F00u) >> 8u); ++i)
     {
-        v_registers[i] = memory[index+i];
+        v_registers[i] = memory[index + i];
     }
 }
