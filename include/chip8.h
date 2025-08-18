@@ -4,6 +4,7 @@
 #include <chrono>
 #include <random>
 
+
 #define DEFAULT_MEM_SIZE 4096 // bytes
 #define DEFAULT_WIDTH 64
 #define DEFAULT_HEIGHT 32
@@ -40,18 +41,6 @@ public:
     static constexpr uint16_t STORAGE_START = 0x050;
     static constexpr uint16_t STORAGE_END = 0x0A0;
 
-    // struct Registers // 8bit General purpose registers array, Vx
-    // {
-    //     uint16_t I; // "I", index, register stores memory address
-    //     union
-    //     {
-    //         uint8_t V[16];
-    //         struct
-    //         {
-    //             uint8_t V0, V1, V2, V3, V4, V5, V6, V7, V8, V9, VA, VB, VC, VD, VE, VF;
-    //         };
-    //     };
-    // } registers;
 
     uint8_t sp = 0;                // 8bit Stack pointer
     uint8_t memory[MEM_SIZE] = {}; // Memory, RAM, array
@@ -88,50 +77,52 @@ public:
         0xF0, 0x80, 0xF0, 0x80, 0x80  // F
     };
 
-    chip8() = default;
-    ~chip8() = default;
+    chip8();
+    ~chip8();
+
+    void rop();
 
     // Fetch, Decode, Execute
-    void Cycle() {};
+    void Cycle();
     // Read ROMs
-    void LoadROM(char const *filename) {};
+    void LoadROM(char const *filename);
 
     // OPCODES
-    void OP_00E0() {};
-    void OP_00EE() {};
-    void OP_1nnn() {};
-    void OP_2nnn() {};
-    void OP_3xkk() {};
-    void OP_4xkk() {};
-    void OP_5xy0() {};
-    void OP_6xkk() {};
-    void OP_7xkk() {};
-    void OP_8xy0() {};
-    void OP_8xy1() {};
-    void OP_8xy2() {};
-    void OP_8xy3() {};
-    void OP_8xy4() {};
-    void OP_8xy5() {};
-    void OP_8xy6() {};
-    void OP_8xy7() {};
-    void OP_8xyE() {};
-    void OP_9xy0() {};
-    void OP_Annn() {};
-    void OP_Bnnn() {};
-    void OP_Cxkk() {};
-    void OP_Dxyn() {};
-    void OP_Ex9E() {};
-    void OP_ExA1() {};
-    void OP_Fx07() {};
-    void OP_Fx0A() {};
-    void OP_Fx15() {};
-    void OP_Fx18() {};
-    void OP_Fx1E() {};
-    void OP_Fx29() {};
-    void OP_Fx33() {};
-    void OP_Fx55() {};
-    void OP_Fx65() {};
-    void OP_NULL() {};
+    void OP_00E0();
+    void OP_00EE();
+    void OP_1nnn();
+    void OP_2nnn();
+    void OP_3xkk();
+    void OP_4xkk();
+    void OP_5xy0();
+    void OP_6xkk();
+    void OP_7xkk();
+    void OP_8xy0();
+    void OP_8xy1();
+    void OP_8xy2();
+    void OP_8xy3();
+    void OP_8xy4();
+    void OP_8xy5();
+    void OP_8xy6();
+    void OP_8xy7();
+    void OP_8xyE();
+    void OP_9xy0();
+    void OP_Annn();
+    void OP_Bnnn();
+    void OP_Cxkk();
+    void OP_Dxyn();
+    void OP_Ex9E();
+    void OP_ExA1();
+    void OP_Fx07();
+    void OP_Fx0A();
+    void OP_Fx15();
+    void OP_Fx18();
+    void OP_Fx1E();
+    void OP_Fx29();
+    void OP_Fx33();
+    void OP_Fx55();
+    void OP_Fx65();
+    void OP_NULL();
 
     // TABLES
     typedef void (chip8::*chip8Func)();
@@ -162,7 +153,7 @@ public:
     }
 
     // Does nothing, dummy function for bad calls
-    void TableNULL() {}
+    void TableNULL();
 };
 chip8::chip8() : rng(std::chrono::system_clock::now().time_since_epoch().count())
 {
@@ -216,32 +207,47 @@ chip8::chip8() : rng(std::chrono::system_clock::now().time_since_epoch().count()
     tableF[0x65] = &chip8::OP_Fx65;
 
     // Populate Master Table
-    using Instruction = void (chip8::*)();
-    Instruction table[16] =
-        {
-            &chip8::Table0,
-            &chip8::OP_1nnn,
-            &chip8::OP_2nnn,
-            &chip8::OP_3xkk,
-            &chip8::OP_4xkk,
-            &chip8::OP_5xy0,
-            &chip8::OP_6xkk,
-            &chip8::OP_7xkk,
-            &chip8::Table8,
-            &chip8::OP_9xy0,
-            &chip8::OP_Annn,
-            &chip8::OP_Bnnn,
-            &chip8::OP_Cxkk,
-            &chip8::OP_Dxyn,
-            &chip8::TableE,
-            &chip8::TableF
-        };
+    table[0x0] = &chip8::Table0;
+    table[0x1] = &chip8::OP_1nnn;
+    table[0x2] = &chip8::OP_2nnn;
+    table[0x3] = &chip8::OP_3xkk;
+    table[0x4] = &chip8::OP_4xkk;
+    table[0x5] = &chip8::OP_5xy0;
+    table[0x6] = &chip8::OP_6xkk;
+    table[0x7] = &chip8::OP_7xkk;
+    table[0x8] = &chip8::Table8;
+    table[0x9] = &chip8::OP_9xy0;
+    table[0xA] = &chip8::OP_Annn;
+    table[0xB] = &chip8::OP_Bnnn;
+    table[0xC] = &chip8::OP_Cxkk;
+    table[0xD] = &chip8::OP_Dxyn;
+    table[0xE] = &chip8::TableE;
+    table[0xF] = &chip8::TableF;
 }
 
 chip8::~chip8()
 {
 }
-
+void chip8::rop() {
+    std::cout << "Opcode: 0x"
+              << std::hex << std::uppercase
+              << std::setw(4) << std::setfill('0')
+              << opcode
+              << std::dec << std::endl; // reset to decimal
+}
+// void chip8::rop() {
+//     //std::bitset<16> bits(opcode);
+//     std::cout 
+//     << "Opcode: " 
+//     << std::bitset<4>( (opcode & 0xF000u) >> 12 ) 
+//     << " " 
+//     << std::bitset<4>( (opcode & 0x0F00u) >> 8u ) 
+//     << " " 
+//     << std::bitset<4>( (opcode & 0x00F0u) >> 4u )
+//     << " "
+//     << std::bitset<4>( (opcode & 0x000Fu) ) 
+//     << std::endl;
+// }
 void chip8::Cycle()
 {
     // Fetch, whichever is true. Combines bytes to make a 16 No *(uint16_t*)&memory[pc], ignores endianess
@@ -421,9 +427,11 @@ void chip8::OP_8xy5()
 // OP SHR Vx, Vy. If the least-significant bit of Vx is 1, then VF is set to 1, otherwise 0. Then Vx is divided by 2.
 void chip8::OP_8xy6()
 {
-    // uint8_t Vx = (opcode & 0x0F00u) >> 8u;
-    v_registers[0xF] = v_registers[(opcode & 0x0F00u) >> 8u] & 0x1u;
-    v_registers[0xF] >>= 1;
+    // careful of legacy, quirk behavior for tests
+    uint8_t x = (opcode & 0x0F00u) >> 8u;
+    uint8_t y = (opcode & 0x00F0u) >> 4u;
+    v_registers[0xF] = v_registers[y] & 0x1u;
+    v_registers[x] = v_registers[y] >> 1;
 }
 
 // OP SUBN Vx, Vy. Set Vx = Vy - Vx, set VF = NOT borrow.
@@ -438,11 +446,17 @@ void chip8::OP_8xy7()
 // OP SHL Vx, {, Vy}. Vx = Vx SHL 1, Shift left. Similar to OP_SHR
 void chip8::OP_8xyE()
 {
-    // uint8_t Vx = (opcode & 0x0F00u) >> 8u;
-    //  Mask first bit, then isolate.
-    v_registers[0xF] = (v_registers[(opcode & 0x0F00u) >> 8u] & 0x80u) >> 7u;
-    v_registers[0x0F00u] <<= 1;
+    // careful about legacy, quirk behavior for tests
+    uint8_t x = (opcode & 0x0F00u) >> 8u;
+    uint8_t y = (opcode & 0x00F0u) >> 4u;
+
+    // Store MSB of Vy
+    v_registers[0xF] = (v_registers[y] & 0x80u) >> 7u;
+
+    // Shift Vy left and store result in Vx
+    v_registers[x] = v_registers[y] << 1;
 }
+
 // OP SNE Vx, Vy. Skip next instruction if Vx != Vy
 void chip8::OP_9xy0()
 {
@@ -568,11 +582,11 @@ void chip8::OP_Fx33()
 {
     uint8_t val = v_registers[(opcode & 0x0F00u) >> 8u];
     // 100s
-    memory[index] = val % 10;
+    memory[index] = (val/100) % 10;
     // 10s
     memory[index + 1] = (val / 10) % 10;
     // 1s
-    memory[index + 2] = (val / 100) % 10;
+    memory[index + 2] = val % 10;
 }
 
 // LD [I], Vx, store/write V0 through Vx in memory starting from I
@@ -591,4 +605,7 @@ void chip8::OP_Fx65()
     {
         v_registers[i] = memory[index + i];
     }
+}
+void chip8::OP_NULL() {
+    // implementation (could be empty)
 }

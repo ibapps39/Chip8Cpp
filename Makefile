@@ -1,12 +1,12 @@
 # make CC=clang++, etc
-CC ?= g++
-CFLAGS = -march=native -O3 -Wall -std=c++17 -Wno-missing-braces
-LDFLAGS =  
-INCLUDES = -I./include
+CC = clang++
+CFLAGS = -march=native -O3 -Wall -std=c++17 -Wno-missing-braces -stdlib=libc++
+LDFLAGS = -stdlib=libc++
+INCLUDES = -I./include -I/opt/homebrew/Cellar/sdl2/2.32.8/include/SDL2/
 
-# SDL2
-CFLAGS += $(shell sdl2-config --cflags)
-LDFLAGS += $(shell sdl2-config --libs)
+# # SDL3
+ CFLAGS += $(shell pkg-config --cflags sdl2)
+ LDFLAGS += $(shell pkg-config --libs sdl2)
 
 
 # Directory structure

@@ -6,7 +6,8 @@
                 "${workspaceFolder}/**",
                 // make this more version agnostic
                 //"/opt/homebrew/Cellar/raylib/5.5/include/**"
-                "/opt/homebrew/Cellar/raylib/*/include/**"
+                // "/opt/homebrew/Cellar/sdl3/3.2.16/include/**",
+                "/opt/homebrew/Cellar/sdl2/2.32.8/include/**"
             ],
             "defines": [],
             "macFrameworkPath": [
