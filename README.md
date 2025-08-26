@@ -3,7 +3,7 @@
 chip8/
 ├── src/
 │   ├── main.cpp
-│   ├── chip8.cpp
+│   
 │   
 ├── include/
 │   └── chip8.hpp
@@ -49,7 +49,8 @@ chip8/
 - [Super CHIP-8 support (higher resolution)](#) - Enhanced graphics mode (128x64)  
 - [Save/load emulator state](#) - Ability to serialize and restore emulator state  
 - [Speed control (e.g., cycle delay)](#) - Control execution speed of emulator cycles  
-- [Sound (beep on timer)](#) - Generate audible beep when sound timer active  
+- [Sound (beep on timer)](#) - Generate audible beep when sound timer active
+- [SDL3](#) - SDL3 upgrade from SDL2.
 
 # ROMs and References
 - [Test ROM - dmatlack](https://github.com/dmatlack/chip8/tree/master/roms)

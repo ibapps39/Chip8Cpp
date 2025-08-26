@@ -93,4 +93,8 @@ Desktop.ini
 
 # Edu book
 austinmorlan.com/
+
+# roms
+roms/
+# Any downloaded ROMs
 *.ch8
