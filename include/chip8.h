@@ -9,6 +9,8 @@
 #define DEFAULT_WIDTH 64
 #define DEFAULT_HEIGHT 32
 #define DEFAULT_REGISTER_STACK_SIZE 16
+#define DEFAULT_EXE_SPEED 1 // MHZ
+#define DEFAULT_INST_EXE 16 // Instructions Fetch
 
 class chip8
 {
@@ -19,11 +21,14 @@ private:
 
 public:
     // static constexpr to avoid wasting memory, allocate to the class not the instance
-
+    
     static constexpr int MEM_SIZE = DEFAULT_MEM_SIZE;
     static constexpr int DISPLAY_WIDTH = DEFAULT_WIDTH;
     static constexpr int DISPLAY_HEIGHT = DEFAULT_HEIGHT;
     static constexpr int REGISTER_STACK_SIZE = DEFAULT_REGISTER_STACK_SIZE;
+    static constexpr int EXE_SPEED = DEFAULT_EXE_SPEED;
+    static constexpr int INST_EXE = DEFAULT_INST_EXE;
+    
 
     static constexpr uint16_t RESERVED_START = 0x000; // Memory starting address, reserved for interpreter
     static constexpr uint16_t RESERVED_END = 0x1FF;   // Memory ending address, reserved for interpreter
@@ -56,7 +61,7 @@ public:
     uint16_t opcode;
 
     uint32_t video[DISPLAY_HEIGHT * DISPLAY_WIDTH] = {};
-
+    
     static constexpr uint8_t FONT_SET[80] = {
         // Fonts, 15 5bit characters
         0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
